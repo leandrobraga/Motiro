@@ -1,0 +1,54 @@
+<html>\n
+<head>
+<style type="text/css" media="all">
+
+body {	
+width:600px;
+font: 80%/1.2 Arial, Helvetica, sans-serif;
+margin:30px auto;
+padding:0;
+color:#666;
+}
+
+table {	
+width:550px;
+border-collapse: collapse;
+border: 2px solid #999;
+margin:0 auto;
+}
+
+caption {
+text-align: right;
+margin-bottom: 0.3em;
+border-bottom: 1px solid #333;
+padding-right: 0.3em;
+}
+
+thead tr th {
+text-align:center;
+border-bottom: 2px solid #999;
+border-left:2px solid #999;
+}
+
+tr td, tr th {	padding: 1px 5px;
+text-align:left;
+font-size: 0.9em;
+border: 1px dotted #333;
+}
+
+tfoot tr td {
+text-align:center;
+border-top: 2px solid #999;
+}
+</style></head><body>\n
+<center><h1>Relatório de Rede</h1></center>\n
+<center><h3>Este relatório apresenta os status de conexão dos host da rede %s às %s horas do dia %s </h3></center>\n
+
+<table>\n
+<tr>
+
+<tr>
+<\table>\n
+
+</body>\n
+</html>
