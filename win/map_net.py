@@ -131,7 +131,7 @@ class MapNetwork(wx.Frame):
         count = 0
         ip_start = list()
         ip_stop = list()
-        ip_mask = self.ip_mask_of_card_net()
+        ip_mask = self.ip_mask_of_card_net(self.combo_interface.GetCurrentSelection())
         ip_interface = ip_mask[0]
         mask_interface = ip_mask[1]
         for mask in mask_interface:
@@ -165,8 +165,8 @@ class MapNetwork(wx.Frame):
         import time
         self.time_last_scan = "%s:%s" %(time.localtime()[3],time.localtime()[4])
         self.map_dial.Destroy()
-
-        mask_interface = self.ip_mask_of_card_net(self.combo_interface.GetCurrentSelection())[1]
+        self.current_card_net = self.combo_interface.GetCurrentSelection()
+        mask_interface = self.ip_mask_of_card_net(self.current_card_net)[1]
         check_net = ping.Ping()
 
         start_range = self.textctrl_start.Value
@@ -227,7 +227,7 @@ class MapNetwork(wx.Frame):
     def create_reports_net(self):
         from datetime import date
         date_last_scan = date.today()
-        ip_and_mask = self.ip_mask_of_card_net()
+        ip_and_mask = self.ip_mask_of_card_net(self.current_card_net)
         report =  '''
                 <html>\n
                 <head>\n
@@ -277,9 +277,8 @@ class MapNetwork(wx.Frame):
                 </head>\n
                     <body>\n
                         <center><h1>Relatório de Rede</h1></center>\n
-                        <center><h3>Este relatório apresenta os status de conexão dos host da rede %s às %s horas do dia %s </h3></center>\n
-                        <table>\n
-        ''' %(ip_and_mask[0],self.time_last_scan,date_last_scan.strftime("%d/%m/%Y"))
+                '''
+        report = report +  "<center><h3>Este relatório apresenta os status de conexão dos host da rede %s às %s horas do dia %s </h3></center>\n<table>\n"   %(ip_and_mask[0],self.time_last_scan,date_last_scan.strftime("%d/%m/%Y"))
         f = file('screenshot.htm', 'w')
         f.write(report)
         f.close()
