@@ -223,6 +223,7 @@ class MapNetwork(wx.Frame):
        self.printer = HtmlEasyPrinting(name='Printing', parentWindow=None)
        self.printer.GetPrintData().SetPaperId(wx.PAPER_A4)
        self.printer.PrintFile('screenshot.htm')
+       #depois tem que deletar esse arquivo screnhost e trocar o nome dele tb neh
 
     def create_reports_net(self):
         from datetime import date
