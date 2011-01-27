@@ -163,7 +163,11 @@ class MapNetwork(wx.Frame):
     def scan_network(self,event):
 
         import time
-        self.time_last_scan = "%s:%s" %(time.localtime()[3],time.localtime()[4])
+        if time.localtime()[4] < 10:
+            self.time_last_scan = "%s:0%s" %(time.localtime()[3],time.localtime()[4])
+        else:
+            self.time_last_scan = "%s:%s" %(time.localtime()[3],time.localtime()[4])
+
         self.map_dial.Destroy()
         self.current_card_net = self.combo_interface.GetCurrentSelection()
         mask_interface = self.ip_mask_of_card_net(self.current_card_net)[1]
@@ -219,22 +223,29 @@ class MapNetwork(wx.Frame):
 
     def on_printer(self,event):
 
-       self.create_reports_net()
-       self.printer = HtmlEasyPrinting(name='Printing', parentWindow=None)
-       self.printer.GetPrintData().SetPaperId(wx.PAPER_A4)
-       self.printer.PrintFile('screenshot.htm')
-       #depois tem que deletar esse arquivo screnhost e trocar o nome dele tb neh
+       if self.grid.NumberRows < 1:
+           wx.MessageBox("Você deve fazer um mapeamento da rede\n antes de imprimir um relatório!","Erro")
+       else:
+           self.create_reports_net()
+           self.printer = HtmlEasyPrinting(name='Printing', parentWindow=None)
+           self.printer.GetPrintData().SetPaperId(wx.PAPER_A4)
+           self.printer.PrintFile('screenshot.htm')
+           #depois tem que deletar esse arquivo screnhost e trocar o nome dele tb neh
 
     def create_reports_net(self):
         from datetime import date
         date_last_scan = date.today()
         ip_and_mask = self.ip_mask_of_card_net(self.current_card_net)
+        ip_net = self.get_ip_net(self.current_card_net)
+        ip_net = ".".join(ip_net)
+        mask_net = str(".".join(ip_and_mask[1]))
+
         report =  '''
                 <html>\n
                 <head>\n
                 <style type="text/css" media="all">
                     body {
-                    width:600px;
+                    width:900px;
                     font: 80%/1.2 Arial, Helvetica, sans-serif;
                     margin:30px auto;
                     padding:0;
@@ -279,7 +290,8 @@ class MapNetwork(wx.Frame):
                     <body>\n
                         <center><h1>Relatório de Rede</h1></center>\n
                 '''
-        report = report +  "<center><h3>Este relatório apresenta os status de conexão dos host da rede %s às %s horas do dia %s </h3></center>\n<table>\n"   %(ip_and_mask[0],self.time_last_scan,date_last_scan.strftime("%d/%m/%Y"))
+
+        report = report +  "<center><h3>Este relatório apresenta os status de conexão dos hosts da rede %s/%s às %s horas do dia %s </h3></center>\n<table>\n"   %(ip_net,mask_net,self.time_last_scan,date_last_scan.strftime("%d/%m/%Y"))
         f = file('screenshot.htm', 'w')
         f.write(report)
         f.close()
@@ -289,8 +301,19 @@ class MapNetwork(wx.Frame):
         #    status = self.grid.GetCellValue(row,2)
 
 
-
-
+    def get_ip_net(self,select_card):
+        ip_mask = self.ip_mask_of_card_net(select_card)
+        ip_interface = ip_mask[0]
+        mask_interface = ip_mask[1]
+        ip_net = list()
+        count = 0
+        for mask in mask_interface:
+            if int(mask) == 255:
+                ip_net.append(str(ip_interface[count]))
+            elif int(mask) == 0:
+                ip_net.append(str(0))
+            count += 1
+        return ip_net
 
 
 
