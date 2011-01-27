@@ -136,27 +136,18 @@ class MapNetwork(wx.Frame):
         mask_interface = ip_mask[1]
         for mask in mask_interface:
             if int(mask) == 255:
-                ip_start.append(int(ip_interface[count]))
-                ip_stop.append(int(ip_interface[count]))
+                ip_start.append(str(ip_interface[count]))
+                ip_stop.append(str(ip_interface[count]))
             elif int(mask) == 0 and count >= 3:
-                ip_start.append(1)
-                ip_stop.append(254)
+                ip_start.append(str(1))
+                ip_stop.append(str(254))
             elif int(mask) == 0 and count <= 3:
-                ip_start.append(0)
-                ip_stop.append(255)
+                ip_start.append(str(0))
+                ip_stop.append(str(255))
             count += 1
-        start = []
-        stop = []
-        for x in range(len(ip_start)):
-            start.append(str(ip_start[x]))
-            start.append(".")
-            stop.append(str(ip_stop[x]))
-            stop.append(".")
 
-        start.pop()
-        stop.pop()
-        start = "".join(start)
-        stop = "".join(stop)
+        start = ".".join(ip_start)
+        stop = ".".join(ip_stop)
         self.textctrl_start.SetValue(start)
         self.textctrl_stop.SetValue(stop)
 
@@ -299,7 +290,6 @@ class MapNetwork(wx.Frame):
         #    ip = self.grid.GetCellValue(row,0)
         #    nome = self.grid.GetCellValue(row,1)
         #    status = self.grid.GetCellValue(row,2)
-
 
     def get_ip_net(self,select_card):
         ip_mask = self.ip_mask_of_card_net(select_card)
