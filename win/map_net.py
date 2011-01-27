@@ -272,7 +272,7 @@ class MapNetwork(wx.Frame):
                     }
 
                     tfoot tr td {
-                        text-align:center;
+                        text-align:right;
                         border-top: 2px solid #999;
                    }
 
@@ -283,13 +283,41 @@ class MapNetwork(wx.Frame):
                 '''
 
         report = report +  "<center><h3>Este relatório apresenta os status de conexão dos hosts da rede %s/%s às %s horas do dia %s </h3></center>\n<table>\n"   %(ip_net,mask_net,self.time_last_scan,date_last_scan.strftime("%d/%m/%Y"))
+
+        report = report + '''
+                <table>\n
+                    <caption>
+                        Status dos Hosts
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th>Endereço IP</th>
+                            <th scope="col">Nome</th>
+                            <th scope="col">Status</th>
+
+                         </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6">Nome da empresa</td>
+                        </tr>
+                    </tfoot>
+                    <tbody>'''
+        for row in xrange(self.grid.GetNumberRows()):
+            ip = str(self.grid.GetCellValue(row,0))
+            nome = str(self.grid.GetCellValue(row,1))
+            status = str(self.grid.GetCellValue(row,2))
+            if status:
+                status = str("On Line")
+            else:
+                status = str("Off Line")
+            report = report +"<tr><th scope=\"row\">%s</th><td>%s</td><td>%s</td></tr>" %(ip,nome,status)
+
+        report = report + "</tbody></table>\n</body>\n</html>"
         f = file('screenshot.htm', 'w')
         f.write(report)
         f.close()
-        #for row in xrange(self.grid.GetNumberRows()):
-        #    ip = self.grid.GetCellValue(row,0)
-        #    nome = self.grid.GetCellValue(row,1)
-        #    status = self.grid.GetCellValue(row,2)
+
 
     def get_ip_net(self,select_card):
         ip_mask = self.ip_mask_of_card_net(select_card)
