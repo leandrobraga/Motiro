@@ -217,10 +217,10 @@ class MapNetwork(wx.Frame):
        if self.grid.NumberRows < 1:
            wx.MessageBox("Você deve fazer um mapeamento da rede\n antes de imprimir um relatório!","Erro")
        else:
-           self.create_reports_net()
+           report = self.create_reports_net()
            self.printer = HtmlEasyPrinting(name='Printing', parentWindow=None)
            self.printer.GetPrintData().SetPaperId(wx.PAPER_A4)
-           self.printer.PrintFile('screenshot.htm')
+           self.printer.PrintFile('screenshot.html')
            #depois tem que deletar esse arquivo screnhost e trocar o nome dele tb neh
 
     def create_reports_net(self):
@@ -307,16 +307,17 @@ class MapNetwork(wx.Frame):
             ip = str(self.grid.GetCellValue(row,0))
             nome = str(self.grid.GetCellValue(row,1))
             status = str(self.grid.GetCellValue(row,2))
-            if status:
+            if int(status) == 1:
                 status = str("On Line")
             else:
                 status = str("Off Line")
             report = report +"<tr><th scope=\"row\">%s</th><td>%s</td><td>%s</td></tr>" %(ip,nome,status)
 
         report = report + "</tbody></table>\n</body>\n</html>"
-        f = file('screenshot.htm', 'w')
+        f = file('screenshot.html', 'w')
         f.write(report)
         f.close()
+        return report
 
 
     def get_ip_net(self,select_card):
