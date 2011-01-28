@@ -213,111 +213,9 @@ class MapNetwork(wx.Frame):
                 start_range[3]=int(start_range[3])+1
 
     def on_printer(self,event):
-
-       if self.grid.NumberRows < 1:
-           wx.MessageBox("Você deve fazer um mapeamento da rede\n antes de imprimir um relatório!","Erro")
-       else:
-           report = self.create_reports_net()
-           self.printer = HtmlEasyPrinting(name='Printing', parentWindow=None)
-           self.printer.GetPrintData().SetPaperId(wx.PAPER_A4)
-           self.printer.PrintFile('screenshot.html')
-           #depois tem que deletar esse arquivo screnhost e trocar o nome dele tb neh
-
-    def create_reports_net(self):
-        from datetime import date
-        date_last_scan = date.today()
-        ip_and_mask = self.ip_mask_of_card_net(self.current_card_net)
-        ip_net = self.get_ip_net(self.current_card_net)
-        ip_net = ".".join(ip_net)
-        mask_net = str(".".join(ip_and_mask[1]))
-
-        report =  '''
-                <html>\n
-                <head>\n
-                <style type="text/css" media="all">
-                    body {
-                    width:900px;
-                    font: 80%/1.2 Arial, Helvetica, sans-serif;
-                    margin:30px auto;
-                    padding:0;
-                   color:#666;
-                    }
-
-                    table {
-                        width:550px;
-                        border-collapse: collapse;
-                        border: 2px solid #999;
-                        margin:0 auto;
-
-                    }
-
-                    caption {
-                       text-align: right;
-                       margin-bottom: 0.3em;
-                       border-bottom: 1px solid #333;
-                       padding-right: 0.3em;
-                   }
-
-                    head tr th {
-                        text-align:center;
-                        border-bottom: 2px solid #999;
-                        border-left: 2px solid #999;
-                   }
-
-                    tr td, tr th {
-                        padding: 1px 5px;
-                        text-align:left;
-                        font-size: 0.9em;
-                        border: 1px dotted #333;
-                    }
-
-                    tfoot tr td {
-                        text-align:right;
-                        border-top: 2px solid #999;
-                   }
-
-                </style>\n
-                </head>\n
-                    <body>\n
-                        <center><h1>Relatório de Rede</h1></center>\n
-                '''
-
-        report = report +  "<center><h3>Este relatório apresenta os status de conexão dos hosts da rede %s/%s às %s horas do dia %s </h3></center>\n<table>\n"   %(ip_net,mask_net,self.time_last_scan,date_last_scan.strftime("%d/%m/%Y"))
-
-        report = report + '''
-                <table>\n
-                    <caption>
-                        Status dos Hosts
-                    </caption>
-                    <thead>
-                        <tr>
-                            <th>Endereço IP</th>
-                            <th scope="col">Nome</th>
-                            <th scope="col">Status</th>
-
-                         </tr>
-                    </thead>
-                    <tfoot>
-                        <tr>
-                            <td colspan="6">Nome da empresa</td>
-                        </tr>
-                    </tfoot>
-                    <tbody>'''
-        for row in xrange(self.grid.GetNumberRows()):
-            ip = str(self.grid.GetCellValue(row,0))
-            nome = str(self.grid.GetCellValue(row,1))
-            status = str(self.grid.GetCellValue(row,2))
-            if int(status) == 1:
-                status = str("On Line")
-            else:
-                status = str("Off Line")
-            report = report +"<tr><th scope=\"row\">%s</th><td>%s</td><td>%s</td></tr>" %(ip,nome,status)
-
-        report = report + "</tbody></table>\n</body>\n</html>"
-        f = file('screenshot.html', 'w')
-        f.write(report)
-        f.close()
-        return report
+        import printer
+        my_printer = printer.Printer(self)
+        my_printer.PageSetup()
 
 
     def get_ip_net(self,select_card):
@@ -333,9 +231,6 @@ class MapNetwork(wx.Frame):
                 ip_net.append(str(0))
             count += 1
         return ip_net
-
-
-
 
 
 app = wx.App()
