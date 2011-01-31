@@ -1,0 +1,59 @@
+[33mcommit 8994fe2acbf46ca401dcd8228acec7be74be01a8[m
+Author: Leandro Braga <leandro.quadros@gmail.com>
+Date:   Thu Jan 27 20:13:07 2011 -0400
+
+    Merge branches 'master' and 'working'
+
+[33mcommit be8293c8a62be08c17cc0f2e89201eb5d26079a5[m
+Author: Leandro Braga <leandro.quadros@gmail.com>
+Date:   Thu Jan 27 20:08:39 2011 -0400
+
+    Add sourece for linux
+
+[33mcommit c99368807c38caaf790a43d75b39395c2f3bc06f[m
+Author: unknown <leandro@.(none)>
+Date:   Fri Jan 28 16:53:56 2011 -0400
+
+    First Commit
+
+[33mcommit 52ddf5b6e8ffaa0269f54c485ae9359a5cf398cd[m
+Author: unknown <leandro@.(none)>
+Date:   Thu Jan 27 17:47:52 2011 -0400
+
+    Refactoring da funcao create_reports_net novamente
+
+[33mcommit 62f00f0e75d08c56d1ff8ef8226302bebd22dda5[m
+Author: unknown <leandro@.(none)>
+Date:   Thu Jan 27 17:15:37 2011 -0400
+
+    Refactoring da funcao create_reports_net
+
+[33mcommit a85169cc13c37c169cad58944302fa2cce0e2458[m
+Author: unknown <leandro@.(none)>
+Date:   Thu Jan 27 16:31:29 2011 -0400
+
+    Refactoring da funcao get_all_net
+
+[33mcommit b75bcf06cc4ed9b0ca3d474c6b2027046a8bbd98[m
+Author: unknown <leandro@.(none)>
+Date:   Thu Jan 27 16:26:02 2011 -0400
+
+    Adicionada funcao get_ip_net
+
+[33mcommit bfe10b854602dde57d84667febdb83907c32dc95[m
+Author: unknown <leandro@.(none)>
+Date:   Wed Jan 26 17:37:05 2011 -0400
+
+    Alterada a funcao ip_mask_of_card_net
+
+[33mcommit 7115f97b3a96566d006f98e0aea5af78e6fe8fa5[m
+Author: unknown <leandro@.(none)>
+Date:   Wed Jan 26 17:36:09 2011 -0400
+
+    Alterada a funcao ip_mask_of_card_net
+
+[33mcommit bc5022adaba6118342059c28b46481c39ed84f4a[m
+Author: unknown <leandro@.(none)>
+Date:   Wed Jan 26 17:19:11 2011 -0400
+
+    First commit

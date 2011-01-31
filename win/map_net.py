@@ -96,7 +96,6 @@ class MapNetwork(wx.Frame):
             pass
 
         self.map_dial.ShowModal()
-        self.map_dial.Destroy()
 
     def get_names_interface_network(self):
         interfaces_names = list()
@@ -160,6 +159,9 @@ class MapNetwork(wx.Frame):
             self.time_last_scan = "%s:%s" %(time.localtime()[3],time.localtime()[4])
 
         self.map_dial.Destroy()
+
+        self.clear_grid(self.grid)
+
         self.current_card_net = self.combo_interface.GetCurrentSelection()
         mask_interface = self.ip_mask_of_card_net(self.current_card_net)[1]
         check_net = ping.Ping()
@@ -168,6 +170,17 @@ class MapNetwork(wx.Frame):
         stop_range = self.textctrl_stop.Value
         start_range = start_range.split(".")
         stop_range = stop_range.split(".")
+
+        max_progress = int(stop_range[3])-int(start_range[3])
+
+        progress_dial = wx.ProgressDialog("Verificando a rede",
+                                          "Esta operação pode demorar um pouco!",
+                                          maximum=max_progress,
+                                          parent=self,
+                                          style = (wx.PD_APP_MODAL | wx.PD_CAN_ABORT
+                                                   |wx.PD_ELAPSED_TIME | wx.PD_REMAINING_TIME |wx.PD_AUTO_HIDE)
+                                        )
+
 
         row = 0
         for host_ip in self.range_ip(start_range,stop_range,mask_interface):
@@ -200,7 +213,11 @@ class MapNetwork(wx.Frame):
                 self.grid.SetCellValue(row,2,str(host["status"]))
 
             self.grid.ForceRefresh()
+            if max_progress !=0:
+                keep_going,skip = progress_dial.Update(row)
             row += 1
+
+        progress_dial.Destroy()
 
     def range_ip(self,start_range,stop_range,mask_interface):
 
@@ -217,7 +234,6 @@ class MapNetwork(wx.Frame):
         my_printer = printer.Printer(self)
         my_printer.PageSetup()
 
-
     def get_ip_net(self,select_card):
         ip_mask = self.ip_mask_of_card_net(select_card)
         ip_interface = ip_mask[0]
@@ -231,6 +247,14 @@ class MapNetwork(wx.Frame):
                 ip_net.append(str(0))
             count += 1
         return ip_net
+
+    def clear_grid(self,grid):
+        number_rows = grid.GetNumberRows()
+        if number_rows !=0:
+            grid.DeleteRows(0,number_rows,1)
+        else:
+            pass
+
 
 
 app = wx.App()
