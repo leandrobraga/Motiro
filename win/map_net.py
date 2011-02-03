@@ -152,12 +152,7 @@ class MapNetwork(wx.Frame):
 
     def scan_network(self,event):
 
-        import time
-        if time.localtime()[4] < 10:
-            self.time_last_scan = "%s:0%s" %(time.localtime()[3],time.localtime()[4])
-        else:
-            self.time_last_scan = "%s:%s" %(time.localtime()[3],time.localtime()[4])
-
+        self.time_of_last_scan = self.get_time()
         self.map_dial.Destroy()
 
         self.clear_grid(self.grid)
@@ -183,39 +178,45 @@ class MapNetwork(wx.Frame):
 
 
         row = 0
+        keep_going = True
         for host_ip in self.range_ip(start_range,stop_range,mask_interface):
-            host_ip = "".join(host_ip)
-            host = check_net.ping(host_ip)
-            on_line = wx.Bitmap('../icon/win/on_line.png',wx.BITMAP_TYPE_PNG)
-            off_line = wx.Bitmap('../icon/win/off_line.png',wx.BITMAP_TYPE_PNG)
-            on_line_renderer = ImageRenderer.ImageRenderer(on_line)
-            off_line_renderer =ImageRenderer.ImageRenderer(off_line)
+            if keep_going:
+                host_ip = "".join(host_ip)
+                host = check_net.ping(host_ip)
+                on_line = wx.Bitmap('../icon/win/on_line.png',wx.BITMAP_TYPE_PNG)
+                off_line = wx.Bitmap('../icon/win/off_line.png',wx.BITMAP_TYPE_PNG)
+                on_line_renderer = ImageRenderer.ImageRenderer(on_line)
+                off_line_renderer =ImageRenderer.ImageRenderer(off_line)
 
-            if host["status"] == 1:
-                self.grid.InsertRows(row,1,True)
-                self.grid.SetCellValue(row,0,host_ip)
-                if host["name"] != "":
-                    self.grid.SetCellValue(row,1,host["name"])
+                if host["status"] == 1:
+                    self.grid.InsertRows(row,1,True)
+                    self.grid.SetCellValue(row,0,host_ip)
+                    if host["name"] != "":
+                        self.grid.SetCellValue(row,1,host["name"])
+                    else:
+                        self.grid.SetCellValue(row,1,"Host sem nome")
+                    self.grid.SetCellRenderer(row,2,on_line_renderer)
+                    self.grid.SetColSize(2,on_line.GetWidth()+10)
+                    self.grid.SetRowSize(row,on_line.GetHeight()+10)
+                    self.grid.SetCellValue(row,2,str(host["status"]))
+
                 else:
-                    self.grid.SetCellValue(row,1,"Host sem nome")
-                self.grid.SetCellRenderer(row,2,on_line_renderer)
-                self.grid.SetColSize(2,on_line.GetWidth()+10)
-                self.grid.SetRowSize(row,on_line.GetHeight()+10)
-                self.grid.SetCellValue(row,2,str(host["status"]))
+                    self.grid.InsertRows(row,1,True)
+                    self.grid.SetCellValue(row,0,host_ip)
+                    self.grid.SetCellValue(row,1," ---- ")
+                    self.grid.SetCellRenderer(row,2,off_line_renderer)
+                    self.grid.SetColSize(2,off_line.GetWidth()+10)
+                    self.grid.SetRowSize(row,off_line.GetHeight()+10)
+                    self.grid.SetCellValue(row,2,str(host["status"]))
 
+                self.grid.ForceRefresh()
+                if max_progress !=0:
+                    keep_going,skip = progress_dial.Update(row)
+
+
+                row += 1
             else:
-                self.grid.InsertRows(row,1,True)
-                self.grid.SetCellValue(row,0,host_ip)
-                self.grid.SetCellValue(row,1," ---- ")
-                self.grid.SetCellRenderer(row,2,off_line_renderer)
-                self.grid.SetColSize(2,off_line.GetWidth()+10)
-                self.grid.SetRowSize(row,off_line.GetHeight()+10)
-                self.grid.SetCellValue(row,2,str(host["status"]))
-
-            self.grid.ForceRefresh()
-            if max_progress !=0:
-                keep_going,skip = progress_dial.Update(row)
-            row += 1
+                break
 
         progress_dial.Destroy()
 
@@ -255,7 +256,14 @@ class MapNetwork(wx.Frame):
         else:
             pass
 
+    def get_time(self):
+        import time
+        if time.localtime()[4] < 10:
+            hours = "%s:0%s" %(time.localtime()[3],time.localtime()[4])
+        else:
+            hours = "%s:%s" %(time.localtime()[3],time.localtime()[4])
 
+        return hours
 
 app = wx.App()
 MapNetwork()
