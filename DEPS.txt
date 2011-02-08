@@ -1,0 +1,7 @@
+PIL
+Reports Lab
+Geraldo reports
+wx, wxpython
+
+dmidecode
+wmi-python
