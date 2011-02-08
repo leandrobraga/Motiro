@@ -49,6 +49,7 @@ class MapNetwork(wx.Frame):
         self.Bind(wx.EVT_TOOL,self.close_window,id=wx.ID_EXIT)
         self.Bind(wx.EVT_TOOL,self.map_net,id=ID_MAP)
         self.Bind(wx.EVT_TOOL,self.on_printer,id=wx.ID_PRINT)
+        self.Bind(wx.EVT_TOOL,self.create_report_map_net,id=ID_PDF)
 
         self.Centre()
         self.Show()
@@ -264,6 +265,27 @@ class MapNetwork(wx.Frame):
             hours = "%s:%s" %(time.localtime()[3],time.localtime()[4])
 
         return hours
+
+    def create_report_map_net(self,event):
+        data_hosts = self.get_data_host()
+        if data_hosts == []:
+            dial_report_error = wx.MessageDialog(None,"O gelatório só pode ser gerado\n após um mapeamento da rede",'Erro',wx.OK|wx.ICON_ERROR)
+            dial_report_error.ShowModal()
+        else:
+            pass
+    def get_data_host(self):
+        rows = self.grid.GetNumberRows()
+        hosts = list()
+        if rows !=0:
+            for row in range(rows):
+                ip = self.grid.GetCellValue(row,0)
+                name = self.grid.GetCellValue(row,1)
+                status = self.grid.GetCellValue(row,2)
+                hosts.append((ip,name,status))
+        elif rows == 1:
+            pass
+
+        return hosts
 
 app = wx.App()
 MapNetwork()
