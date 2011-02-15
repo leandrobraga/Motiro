@@ -3,6 +3,9 @@
 import wx,socket,ping,wmi,ImageRenderer,os
 import wx.grid
 from wx.html import HtmlEasyPrinting
+import cStringIO
+import ho.pisa as pisa
+import os
 
 class MapNetwork(wx.Frame):
 
@@ -278,6 +281,7 @@ class MapNetwork(wx.Frame):
             dial_report_error.ShowModal()
         else:
             report_html = self.create_report_html(data_host)
+            self.html_2_pdf(report_html)
 
     def create_report_html(self,data_host):
         ip_net = ".".join(self.ip_net)
@@ -360,7 +364,8 @@ class MapNetwork(wx.Frame):
                 count +=1
             else:
                 body_table_report = " <div id=\"footerContent\"><hr> Aqui vai algumas infos de data / hora </div><pdf:nextpage></body></html>"
-
+                last_html_report = html_report + body_table_report
+                count=0
 
     def get_data_host(self):
         rows = self.grid.GetNumberRows()
@@ -375,6 +380,14 @@ class MapNetwork(wx.Frame):
             pass
 
         return hosts
+
+    def html_2_pdf(self,html,fileName="report_map_net.pdf"):
+        pdf = pisa.CreatePDF(cStringIO.StringIO(data),file(filename, "wb"))
+
+        if open and (not pdf.err):
+            os.startfile(str(filename))
+
+        return not pdf.err
 
 app = wx.App()
 MapNetwork()
