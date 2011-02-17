@@ -5,3 +5,8 @@ wx, wxpython
 
 dmidecode
 wmi-python
+
+Pypdf
+Html5lib
+pisa
+

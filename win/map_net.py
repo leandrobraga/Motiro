@@ -1,6 +1,6 @@
 # -*- coding: latin-1 -*-
 #This a stupid coment. All right?
-import wx,socket,wmi,ping,ImageRenderer,os
+import wx,socket,ping,wmi,ImageRenderer,os
 import wx.grid
 from wx.html import HtmlEasyPrinting
 
@@ -156,10 +156,15 @@ class MapNetwork(wx.Frame):
         self.time_of_last_scan = self.get_time()
         self.map_dial.Destroy()
 
+
         self.clear_grid(self.grid)
 
         self.current_card_net = self.combo_interface.GetCurrentSelection()
-        mask_interface = self.ip_mask_of_card_net(self.current_card_net)[1]
+
+        self.ip_card_net = self.ip_mask_of_card_net(self.current_card_net)[0]
+        self.mask_interface = self.ip_mask_of_card_net(self.current_card_net)[1]
+        self.ip_net = self.get_ip_net(self.current_card_net)
+
         check_net = ping.Ping()
 
         start_range = self.textctrl_start.Value
@@ -180,7 +185,7 @@ class MapNetwork(wx.Frame):
 
         row = 0
         keep_going = True
-        for host_ip in self.range_ip(start_range,stop_range,mask_interface):
+        for host_ip in self.range_ip(start_range,stop_range,self.mask_interface):
             if keep_going:
                 host_ip = "".join(host_ip)
                 host = check_net.ping(host_ip)
@@ -269,10 +274,94 @@ class MapNetwork(wx.Frame):
     def create_report_map_net(self,event):
         data_hosts = self.get_data_host()
         if data_hosts == []:
-            dial_report_error = wx.MessageDialog(None,"O gelatório só pode ser gerado\n após um mapeamento da rede",'Erro',wx.OK|wx.ICON_ERROR)
+            dial_report_error = wx.MessageDialog(None,"O relatório só pode ser gerado\n após um mapeamento da rede",'Erro',wx.OK|wx.ICON_ERROR)
             dial_report_error.ShowModal()
         else:
-            pass
+            report_html = self.create_report_html(data_host)
+
+    def create_report_html(self,data_host):
+        ip_net = ".".join(self.ip_net)
+        mask_interface = ".".join(self.mask_interface)
+        number_of_host = len(data_hosts)
+        host_per_page = 20
+        current_page = 1
+        total_pages = (number_of_host/host_per_page)+1
+
+        html_report = """
+             <html>
+                <head>
+                    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+                    <style>
+                        @page {
+                        margin: 1cm;
+
+                        @frame head{
+                            -pdf-frame-content: headContent;
+                            top: 1cm;
+                            margin-left: 1cm;
+                            margin-right: 1cm;
+                        }
+                        @frame page_number {
+                            -pdf-frame-content: pageNumberContent;
+                            top: 1.5cm;
+                            display:block;
+                            position:absolute;
+                            left:650px;
+                        }
+                        @frame caption {
+                            -pdf-frame-content: captionContent;
+                            display:block;
+                            position:absolute;
+                            top:80px;
+                            left:495px;
+
+                        }
+
+                        @frame footer {
+                            -pdf-frame-content: footerContent;
+                            bottom: 1cm;
+                            margin-left: 1cm;
+                            margin-right: 1cm;
+                            height: 1cm;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div id="headContent">
+                <center><h2>Relatório de Status de Conexão</h2></center>
+                <h5 id="pageNumberContent">Página <pdf:pagenumber/> de 2</h5>
+                <hr>
+                </div>
+                <br><br><br><br>
+                <div id="captionContent">
+        """
+
+
+        net_report = "Rede %s / %s" %(ip_net,mask_interface)
+        html_report = html_report + net_report
+
+        html_report = html_report + """
+            </caption>
+                <thead>
+                    <tr>
+                        <th>Endereço IP</th>
+                        <th>Nome</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>"""
+
+        count = 0
+        body_table_report = str()
+        for host in data_host:
+            if count<=host_per_page:
+                body_table_report = body_table_report +" <tr><th>%s</th><th>%s</th><th>%s</th></tr>""" %(host[0],host[1],host[2])
+                count +=1
+            else:
+                body_table_report = " <div id=\"footerContent\"><hr> Aqui vai algumas infos de data / hora </div><pdf:nextpage></body></html>"
+
+
     def get_data_host(self):
         rows = self.grid.GetNumberRows()
         hosts = list()
