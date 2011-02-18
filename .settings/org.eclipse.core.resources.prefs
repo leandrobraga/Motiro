@@ -1,8 +1,8 @@
-#Wed Feb 16 16:41:32 AMT 2011
+#Fri Feb 18 16:04:57 VET 2011
 eclipse.preferences.version=1
 encoding//linux/map_net.py=latin1
 encoding//win/mainwindow.py=UTF-8
-encoding//win/map_net.py=latin1
+encoding//win/map_net.py=iso-8859-1
 encoding//win/ping.py=UTF-8
 encoding//win/printer.py=latin1
 encoding/InfoMotherBoard.py=UTF-8

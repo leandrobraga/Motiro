@@ -1,4 +1,4 @@
-# -*- coding: latin-1 -*-
+# -*- coding: iso-8859-1 -*-
 #This a stupid coment. All right?
 import wx,socket,ping,wmi,ImageRenderer,os
 import wx.grid
@@ -32,7 +32,7 @@ class MapNetwork(wx.Frame):
 
         self.grid = wx.grid.Grid(panel1)
         self.grid.CreateGrid(0,3)
-        self.grid.SetColLabelValue(0,"Endereco IP")
+        self.grid.SetColLabelValue(0,"Endereço IP")
         self.grid.SetColSize(0,170)
         self.grid.SetColLabelValue(1,"Nome")
         self.grid.SetColSize(1,170)
@@ -280,10 +280,10 @@ class MapNetwork(wx.Frame):
             dial_report_error = wx.MessageDialog(None,"O relatório só pode ser gerado\n após um mapeamento da rede",'Erro',wx.OK|wx.ICON_ERROR)
             dial_report_error.ShowModal()
         else:
-            report_html = self.create_report_html(data_host)
+            report_html = self.create_report_html(data_hosts)
             self.html_2_pdf(report_html)
 
-    def create_report_html(self,data_host):
+    def create_report_html(self,data_hosts):
         ip_net = ".".join(self.ip_net)
         mask_interface = ".".join(self.mask_interface)
         number_of_host = len(data_hosts)
@@ -294,7 +294,7 @@ class MapNetwork(wx.Frame):
         html_report = """
              <html>
                 <head>
-                    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+                    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
                     <style>
                         @page {
                         margin: 1cm;
@@ -333,8 +333,11 @@ class MapNetwork(wx.Frame):
             </head>
             <body>
                 <div id="headContent">
-                <center><h2>Relatório de Status de Conexão</h2></center>
-                <h5 id="pageNumberContent">Página <pdf:pagenumber/> de 2</h5>
+                <center><h2>Relatório de Status de Conexão</h2></center>"""
+
+        html_report = html_report + "<h5 id=\"pageNumberContent\">Página <pdf:pagenumber/> de %s</h5>" %(total_pages)
+
+        html_report = html_report + """
                 <hr>
                 </div>
                 <br><br><br><br>
@@ -343,10 +346,11 @@ class MapNetwork(wx.Frame):
 
 
         net_report = "Rede %s / %s" %(ip_net,mask_interface)
-        html_report = html_report + net_report
+        html_report = html_report + str(net_report)
 
         html_report = html_report + """
-            </caption>
+            </div>
+                <table>
                 <thead>
                     <tr>
                         <th>Endereço IP</th>
@@ -358,14 +362,18 @@ class MapNetwork(wx.Frame):
 
         count = 0
         body_table_report = str()
-        for host in data_host:
+        for host in data_hosts:
             if count<=host_per_page:
-                body_table_report = body_table_report +" <tr><th>%s</th><th>%s</th><th>%s</th></tr>""" %(host[0],host[1],host[2])
+                body_table_report = str(body_table_report) +" <tr><th>%s</th><th>%s</th><th>%s</th></tr>" %(host[0],host[1],host[2])
                 count +=1
             else:
-                body_table_report = " <div id=\"footerContent\"><hr> Aqui vai algumas infos de data / hora </div><pdf:nextpage></body></html>"
-                last_html_report = html_report + body_table_report
+                body_table_report = str(body_table_report) + " <div id=\"footerContent\"><hr> Aqui vai algumas infos de data / hora </div></body></html><pdf:nextpage>"
+                body_table_report = str(body_table_report) + html_report
                 count=0
+
+        last_html_report = html_report + str(body_table_report)
+        last_html_report = last_html_report + "</tbody></table></body></html>"
+        return last_html_report
 
     def get_data_host(self):
         rows = self.grid.GetNumberRows()
@@ -382,11 +390,10 @@ class MapNetwork(wx.Frame):
         return hosts
 
     def html_2_pdf(self,html,fileName="report_map_net.pdf"):
-        pdf = pisa.CreatePDF(cStringIO.StringIO(data),file(filename, "wb"))
-
-        if open and (not pdf.err):
-            os.startfile(str(filename))
-
+        print html
+        pisa.showLogging()
+        pdf = pisa.CreatePDF(cStringIO.StringIO(html),file(fileName, "wb"))
+        print pdf.err
         return not pdf.err
 
 app = wx.App()
