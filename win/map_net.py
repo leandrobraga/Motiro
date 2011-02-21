@@ -2,9 +2,7 @@
 #This a stupid coment. All right?
 import wx,socket,ping,wmi,ImageRenderer,os
 import wx.grid
-from wx.html import HtmlEasyPrinting
-import cStringIO
-import ho.pisa as pisa
+import CreateReport
 import os
 
 class MapNetwork(wx.Frame):
@@ -274,107 +272,6 @@ class MapNetwork(wx.Frame):
 
         return hours
 
-    def create_report_map_net(self,event):
-        data_hosts = self.get_data_host()
-        if data_hosts == []:
-            dial_report_error = wx.MessageDialog(None,"O relatório só pode ser gerado\n após um mapeamento da rede",'Erro',wx.OK|wx.ICON_ERROR)
-            dial_report_error.ShowModal()
-        else:
-            report_html = self.create_report_html(data_hosts)
-            self.html_2_pdf(report_html)
-
-    def create_report_html(self,data_hosts):
-        ip_net = ".".join(self.ip_net)
-        mask_interface = ".".join(self.mask_interface)
-        number_of_host = len(data_hosts)
-        host_per_page = 20
-        current_page = 1
-        total_pages = (number_of_host/host_per_page)+1
-
-        html_report = """
-             <html>
-                <head>
-                    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
-                    <style>
-                        @page {
-                        margin: 1cm;
-
-                        @frame head{
-                            -pdf-frame-content: headContent;
-                            top: 1cm;
-                            margin-left: 1cm;
-                            margin-right: 1cm;
-                        }
-                        @frame page_number {
-                            -pdf-frame-content: pageNumberContent;
-                            top: 1.5cm;
-                            display:block;
-                            position:absolute;
-                            left:650px;
-                        }
-                        @frame caption {
-                            -pdf-frame-content: captionContent;
-                            display:block;
-                            position:absolute;
-                            top:80px;
-                            left:495px;
-
-                        }
-
-                        @frame footer {
-                            -pdf-frame-content: footerContent;
-                            bottom: 1cm;
-                            margin-left: 1cm;
-                            margin-right: 1cm;
-                            height: 1cm;
-                        }
-                    }
-                </style>
-            </head>
-            <body>
-                <div id="headContent">
-                <center><h2>Relatório de Status de Conexão</h2></center>"""
-
-        html_report = html_report + "<h5 id=\"pageNumberContent\">Página <pdf:pagenumber/> de %s</h5>" %(total_pages)
-
-        html_report = html_report + """
-                <hr>
-                </div>
-                <br><br><br><br>
-                <div id="captionContent">
-        """
-
-
-        net_report = "Rede %s / %s" %(ip_net,mask_interface)
-        html_report = html_report + str(net_report)
-
-        html_report = html_report + """
-            </div>
-                <table>
-                <thead>
-                    <tr>
-                        <th>Endereço IP</th>
-                        <th>Nome</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>"""
-
-        count = 0
-        body_table_report = str()
-        for host in data_hosts:
-            if count<=host_per_page:
-                body_table_report = str(body_table_report) +" <tr><th>%s</th><th>%s</th><th>%s</th></tr>" %(host[0],host[1],host[2])
-                count +=1
-            else:
-                body_table_report = str(body_table_report) + " <div id=\"footerContent\"><hr> Aqui vai algumas infos de data / hora </div></body></html><pdf:nextpage>"
-                body_table_report = str(body_table_report) + html_report
-                count=0
-
-        last_html_report = html_report + str(body_table_report)
-        last_html_report = last_html_report + "</tbody></table></body></html>"
-        return last_html_report
-
     def get_data_host(self):
         rows = self.grid.GetNumberRows()
         hosts = list()
@@ -389,12 +286,21 @@ class MapNetwork(wx.Frame):
 
         return hosts
 
-    def html_2_pdf(self,html,fileName="report_map_net.pdf"):
-        print html
-        pisa.showLogging()
-        pdf = pisa.CreatePDF(cStringIO.StringIO(html),file(fileName, "wb"))
-        print pdf.err
-        return not pdf.err
+    def create_report_map_net(self,event):
+        data_hosts = self.get_data_host()
+        if data_hosts == []:
+            dial_report_error = wx.MessageDialog(None,"O relatório só pode ser gerado\n após um mapeamento da rede",'Erro',wx.OK|wx.ICON_ERROR)
+            dial_report_error.ShowModal()
+        else:
+            dlg_create_pdf = wx.FileDialog(self,message="Salvar como",defaultDir=" ",style=wx.SAVE)
+            if dlg_create_pdf.ShowModal() == wx.ID_OK:
+                path_file = dlg_create_pdf.GetPath()
+                print path_file
+                #report = CreateReport.Report(data_hosts,self.ip_net,self.mask_interface)
+                #report.create_pdf()
+
+
+
 
 app = wx.App()
 MapNetwork()
