@@ -140,4 +140,8 @@ class Report(Thread):
     def get_date(self):
         import datetime
         today = datetime.date.today()
+
         return today.strftime('%d/%m/%Y')
+
+
+

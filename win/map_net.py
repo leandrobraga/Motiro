@@ -4,6 +4,8 @@ import wx,socket,ping,wmi,ImageRenderer,os
 import wx.grid
 import CreateReport
 import os
+from threading import Thread
+
 
 
 class MapNetwork(wx.Frame):
