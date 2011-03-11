@@ -6,6 +6,8 @@ from wx.html import HtmlEasyPrinting
 import cStringIO
 import ho.pisa as pisa
 import os
+from threading import Thread
+
 
 class MapNetwork(wx.Frame):
 
