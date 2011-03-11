@@ -5,6 +5,7 @@ import wx.grid
 import CreateReport
 import os
 
+
 class MapNetwork(wx.Frame):
 
     def __init__(self):
@@ -292,12 +293,14 @@ class MapNetwork(wx.Frame):
             dial_report_error = wx.MessageDialog(None,"O relatório só pode ser gerado\n após um mapeamento da rede",'Erro',wx.OK|wx.ICON_ERROR)
             dial_report_error.ShowModal()
         else:
-            dlg_create_pdf = wx.FileDialog(self,message="Salvar como",defaultDir=" ",style=wx.SAVE)
+            wildcard = "PDF Files (*.pdf)|.pdf"
+            dlg_create_pdf = wx.FileDialog(self,message="Salvar como",defaultDir=" ",wildcard=wildcard,style=wx.SAVE)
             if dlg_create_pdf.ShowModal() == wx.ID_OK:
                 path_file = dlg_create_pdf.GetPath()
-                print path_file
-                #report = CreateReport.Report(data_hosts,self.ip_net,self.mask_interface)
-                #report.create_pdf()
+                report = CreateReport.Report(data_hosts,self.ip_net,self.mask_interface,path_file)
+                report.start()
+
+
 
 
 

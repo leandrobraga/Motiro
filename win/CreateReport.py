@@ -1,12 +1,22 @@
 # -*- coding: iso-8859-1 -*-
 import cStringIO
-import ho.pisa as pisa
+import ho.pisa
+import wx
+from threading import Thread
 
-class Report:
-    def __init__(self,data,ip_net,mask_interface):
+class Report(Thread):
+    def __init__(self,data,ip_net,mask_interface,file_name):
+
+        Thread.__init__(self)
+
         self.data_hosts = data
         self.ip_net = ip_net
         self.mask_interface = mask_interface
+        self.file_name = file_name
+
+    def run(self):
+
+        self.create_pdf(self.file_name)
 
     def create_report_html(self,data_hosts):
         ip_net = ".".join(self.ip_net)
@@ -110,11 +120,12 @@ class Report:
 
         return last
 
-
-    def create_pdf(self,fileName="report_map_net.pdf"):
+    def create_pdf(self,file_name="report_map_net.pdf"):
         html = self.create_report_html(self.data_hosts)
-        pisa.showLogging()
-        pdf = pisa.CreatePDF(cStringIO.StringIO(html),file(fileName, "wb"))
+        ho.pisa.showLogging()
+        var_file = file(file_name, "wb")
+        pdf = ho.pisa.CreatePDF(cStringIO.StringIO(html),var_file)
+        var_file.close()
         return not pdf.err
 
     def get_time(self):
