@@ -2,26 +2,19 @@
 import cStringIO
 import ho.pisa
 import wx
-from threading import Thread
 
-class Report(Thread):
-    def __init__(self,data,ip_net,mask_interface,file_name):
-
-        Thread.__init__(self)
+class Report:
+    def __init__(self,data,ip_net,mask_interface,file_name="report_map_net.pdf"):
 
         self.data_hosts = data
         self.ip_net = ip_net
         self.mask_interface = mask_interface
         self.file_name = file_name
 
-    def run(self):
-
-        self.create_pdf(self.file_name)
-
-    def create_report_html(self,data_hosts):
+    def create_report_html(self):
         ip_net = ".".join(self.ip_net)
         mask_interface = ".".join(self.mask_interface)
-        number_of_host = len(data_hosts)
+        number_of_host = len(self.data_hosts)
         host_per_page = 50
         current_page = 1
         total_pages = (number_of_host/host_per_page)+1
@@ -98,7 +91,7 @@ class Report(Thread):
         body_table_report = str()
         total_count =0
         last = str(html_report_0) + str(html_report_1) + str(html_report_2) + str(html_report_3) + str(html_report_4)
-        for host in data_hosts:
+        for host in self.data_hosts:
             if count<=host_per_page:
                 body_table_report = str(body_table_report) +"<tr><th>%s</th><th>%s</th><th>%s</th></tr>" %(str(host[0]),str(host[1]),str(host[2]))
                 count +=1
@@ -121,11 +114,12 @@ class Report(Thread):
         return last
 
     def create_pdf(self,file_name="report_map_net.pdf"):
-        html = self.create_report_html(self.data_hosts)
+        html = self.create_report_html()
         ho.pisa.showLogging()
         var_file = file(file_name, "wb")
         pdf = ho.pisa.CreatePDF(cStringIO.StringIO(html),var_file)
         var_file.close()
+
         return not pdf.err
 
     def get_time(self):

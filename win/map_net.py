@@ -4,6 +4,7 @@ import wx,socket,ping,wmi,ImageRenderer,os
 import wx.grid
 import CreateReport
 import os
+import win32print,win32api
 from threading import Thread
 
 
@@ -241,9 +242,45 @@ class MapNetwork(wx.Frame):
                 start_range[3]=int(start_range[3])+1
 
     def on_printer(self,event):
-        import printer
-        my_printer = printer.Printer(self)
-        my_printer.preview_print()
+        import printout
+
+        from wx.html import HtmlEasyPrinting
+        data_hosts = self.get_data_host()
+        self.pdata = wx.PrintDialogData()
+        #self.pdata.SetPaperId(wx.PAPER_LETTER)
+        ##self.pdata.SetOrientation(wx.PORTRAIT)
+        #self.margins = (wx.Point(15,15), wx.Point(15,15))
+
+        if data_hosts == []:
+            dial_report_error = wx.MessageDialog(None,"O relatório só pode ser gerado\n após um mapeamento da rede",'Erro',wx.OK|wx.ICON_ERROR)
+            dial_report_error.ShowModal()
+        else:
+            report = CreateReport.Report(data_hosts,self.ip_net,self.mask_interface)
+            path_file = os.path.abspath("tmp/report_tmp.pdf")
+            report.create_pdf(path_file)
+
+            dial_print = wx.PrintDialog(self,self.pdata)
+            if dial_print.ShowModal() == wx.ID_OK:
+
+                pdata = dial_print.PrintData
+                printer_name = pdata.GetPrinterName()
+                printers = self.get_name_printers()
+
+                for printer in printers:
+                    if printer.upper().rfind(printer_name.upper()) != -1:
+                        default_printer = win32print.GetDefaultPrinter()
+                        print default_printer
+                        win32print.SetDefaultPrinter(printer_name)
+                        print win32print.GetDefaultPrinter()
+                        oi = win32api.ShellExecute (0, "print", path_file, None, ".", 0)
+
+                        #win32print.SetDefaultPrinter(default_printer)
+                        print win32print.GetDefaultPrinter()
+
+                        return 1
+
+            else:
+                print "odsfsof"
 
     def get_ip_net(self,select_card):
         ip_mask = self.ip_mask_of_card_net(select_card)
@@ -300,9 +337,25 @@ class MapNetwork(wx.Frame):
             if dlg_create_pdf.ShowModal() == wx.ID_OK:
                 path_file = dlg_create_pdf.GetPath()
                 report = CreateReport.Report(data_hosts,self.ip_net,self.mask_interface,path_file)
-                report.start()
+                thread_create_pdf = Thread(target=report.create_pdf,args=(path_file,))
+                thread_create_pdf.start()
+                thread_create_pdf.join()
+                return 1
+        return 0
 
+    def get_name_printers(self):
+        printers_local = win32print.EnumPrinters(win32print.PRINTER_ENUM_LOCAL,None,1)
+        printers_network = win32print.EnumPrinters(win32print.PRINTER_ENUM_CONNECTIONS,None,1)
 
+        printers = list()
+
+        for printer in printers_local:
+            printers.append(printer[2])
+
+        for printer in printers_network:
+            printers.append(printer[2])
+
+        return printers
 
 
 
