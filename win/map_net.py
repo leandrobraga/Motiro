@@ -104,8 +104,6 @@ class MapNetwork(wx.Frame):
             self.dial_error = wx.MessageDialog(None,"Não foi encontrado nem um tipo \nde placa de rede ativa!",'Erro',wx.OK|wx.ICON_ERROR)
             self.dial_error.ShowModal()
 
-
-
     def get_names_interface_network(self):
         interfaces_names = list()
         w = wmi.WMI()
@@ -179,60 +177,64 @@ class MapNetwork(wx.Frame):
         stop_range = self.textctrl_stop.Value
         start_range = start_range.split(".")
         stop_range = stop_range.split(".")
+        if int(stop_range[3]) >= int(start_range[3]):
 
-        max_progress = int(stop_range[3])-int(start_range[3])
+            max_progress = int(stop_range[3])-int(start_range[3])
 
-        progress_dial = wx.ProgressDialog("Verificando a rede",
-                                          "Esta operação pode demorar um pouco!",
-                                          maximum=max_progress,
-                                          parent=self,
-                                          style = (wx.PD_APP_MODAL | wx.PD_CAN_ABORT
-                                                   |wx.PD_ELAPSED_TIME | wx.PD_REMAINING_TIME |wx.PD_AUTO_HIDE)
-                                        )
+            progress_dial = wx.ProgressDialog("Verificando a rede",
+                                              "Esta operação pode demorar um pouco!",
+                                              maximum=max_progress,
+                                              parent=self,
+                                              style = (wx.PD_APP_MODAL | wx.PD_CAN_ABORT
+                                                       |wx.PD_ELAPSED_TIME | wx.PD_REMAINING_TIME |wx.PD_AUTO_HIDE)
+                                            )
 
 
-        row = 0
-        keep_going = True
-        for host_ip in self.range_ip(start_range,stop_range,self.mask_interface):
-            if keep_going:
-                host_ip = "".join(host_ip)
-                host = check_net.ping(host_ip)
-                on_line = wx.Bitmap('../icon/win/on_line.png',wx.BITMAP_TYPE_PNG)
-                off_line = wx.Bitmap('../icon/win/off_line.png',wx.BITMAP_TYPE_PNG)
-                on_line_renderer = ImageRenderer.ImageRenderer(on_line)
-                off_line_renderer =ImageRenderer.ImageRenderer(off_line)
+            row = 0
+            keep_going = True
+            for host_ip in self.range_ip(start_range,stop_range,self.mask_interface):
+                if keep_going:
+                    host_ip = "".join(host_ip)
+                    host = check_net.ping(host_ip)
+                    on_line = wx.Bitmap('../icon/win/on_line.png',wx.BITMAP_TYPE_PNG)
+                    off_line = wx.Bitmap('../icon/win/off_line.png',wx.BITMAP_TYPE_PNG)
+                    on_line_renderer = ImageRenderer.ImageRenderer(on_line)
+                    off_line_renderer =ImageRenderer.ImageRenderer(off_line)
 
-                if host["status"] == 1:
-                    self.grid.InsertRows(row,1,True)
-                    self.grid.SetCellValue(row,0,host_ip)
-                    if host["name"] != "":
-                        self.grid.SetCellValue(row,1,host["name"])
+                    if host["status"] == 1:
+                        self.grid.InsertRows(row,1,True)
+                        self.grid.SetCellValue(row,0,host_ip)
+                        if host["name"] != "":
+                            self.grid.SetCellValue(row,1,host["name"])
+                        else:
+                            self.grid.SetCellValue(row,1,"Host sem nome")
+                        self.grid.SetCellRenderer(row,2,on_line_renderer)
+                        self.grid.SetColSize(2,on_line.GetWidth()+10)
+                        self.grid.SetRowSize(row,on_line.GetHeight()+10)
+                        self.grid.SetCellValue(row,2,str(host["status"]))
+
                     else:
-                        self.grid.SetCellValue(row,1,"Host sem nome")
-                    self.grid.SetCellRenderer(row,2,on_line_renderer)
-                    self.grid.SetColSize(2,on_line.GetWidth()+10)
-                    self.grid.SetRowSize(row,on_line.GetHeight()+10)
-                    self.grid.SetCellValue(row,2,str(host["status"]))
+                        self.grid.InsertRows(row,1,True)
+                        self.grid.SetCellValue(row,0,host_ip)
+                        self.grid.SetCellValue(row,1," ---- ")
+                        self.grid.SetCellRenderer(row,2,off_line_renderer)
+                        self.grid.SetColSize(2,off_line.GetWidth()+10)
+                        self.grid.SetRowSize(row,off_line.GetHeight()+10)
+                        self.grid.SetCellValue(row,2,str(host["status"]))
 
+                    self.grid.ForceRefresh()
+                    if max_progress !=0:
+                        keep_going,skip = progress_dial.Update(row)
+
+
+                    row += 1
                 else:
-                    self.grid.InsertRows(row,1,True)
-                    self.grid.SetCellValue(row,0,host_ip)
-                    self.grid.SetCellValue(row,1," ---- ")
-                    self.grid.SetCellRenderer(row,2,off_line_renderer)
-                    self.grid.SetColSize(2,off_line.GetWidth()+10)
-                    self.grid.SetRowSize(row,off_line.GetHeight()+10)
-                    self.grid.SetCellValue(row,2,str(host["status"]))
+                    break
 
-                self.grid.ForceRefresh()
-                if max_progress !=0:
-                    keep_going,skip = progress_dial.Update(row)
-
-
-                row += 1
-            else:
-                break
-
-        progress_dial.Destroy()
+            progress_dial.Destroy()
+        else:
+            dial_error = wx.MessageDialog(None,"O endereço de início deve ser menor do que o de fim!",'Erro',wx.OK|wx.ICON_ERROR)
+            dial_error.ShowModal()
 
     def range_ip(self,start_range,stop_range,mask_interface):
 
@@ -244,8 +246,9 @@ class MapNetwork(wx.Frame):
                 yield ip_ping
                 start_range[3]=int(start_range[3])+1
 
+
     def on_printer(self,event):
-        import printout
+        import printout,time
 
         from wx.html import HtmlEasyPrinting
         data_hosts = self.get_data_host()
@@ -276,8 +279,8 @@ class MapNetwork(wx.Frame):
                         win32print.SetDefaultPrinter(printer_name)
                         print win32print.GetDefaultPrinter()
                         oi = win32api.ShellExecute (0, "print", path_file, None, ".", 0)
-
-                        #win32print.SetDefaultPrinter(default_printer)
+                        time.sleep(2)
+                        win32print.SetDefaultPrinter(default_printer)
                         print win32print.GetDefaultPrinter()
 
                         return 1
