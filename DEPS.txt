@@ -10,3 +10,4 @@ Pypdf
 Html5lib
 pisa
 
+win32api

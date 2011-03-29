@@ -1,15 +1,14 @@
 #! /usr/bin/python
 #! -*- coding:utf-8 -*-
-#TESTE do GIT - testando novamente
-import socket,struct,os,binascii
+
+import socket,struct,os
 class Ping:
     def __init__(self):
         pass
 
     def checksum(self,source_string):
         """
-        I'm not too confident that this is right but testing seems
-        to suggest that it gives the same answers as in_cksum in ping.c
+
         """
         sum = 0
         countTo = (len(source_string)/2)*2

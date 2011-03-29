@@ -85,23 +85,26 @@ class MapNetwork(wx.Frame):
             self.combo_interface = wx.ComboBox(self.map_dial,ID_MAP_COMBO,choices=self.card_net,style=wx.CB_READONLY,pos=(70,5),size=(165,-1))
             self.combo_interface.SetValue(self.card_net[0])
 
-            label_2 = wx.StaticText(self.map_dial,-1,"Defina um intervalo:",pos=(10,25))
-            label_start = wx.StaticText(self.map_dial,-1,"Início:",pos=(20,50))
-            self.textctrl_start = wx.TextCtrl(self.map_dial,-1,pos=(55,45))
-            label_stop = wx.StaticText(self.map_dial,-1,"Fim:",pos=(20,80))
-            self.textctrl_stop = wx.TextCtrl(self.map_dial,-1,pos=(55,75))
+            label_2 = wx.StaticText(self.map_dial,-1,"Defina um intervalo:",pos=(10,30))
+            label_start = wx.StaticText(self.map_dial,-1,"Início:",pos=(20,55))
+            self.textctrl_start = wx.TextCtrl(self.map_dial,-1,pos=(55,50))
+            label_stop = wx.StaticText(self.map_dial,-1,"Fim:",pos=(20,85))
+            self.textctrl_stop = wx.TextCtrl(self.map_dial,-1,pos=(55,80))
 
-            btn_all_net = wx.Button(self.map_dial,ID_MAP_GET_ALL_IP,"Toda Rede",(55,100),(60,30))
-            btn_ok_map = wx.Button(self.map_dial,wx.ID_OK,"OK",(35,145),(60,30))
-            btn_cancel_map = wx.Button(self.map_dial,wx.ID_CANCEL,"Cancelar",(105,145),(60,30))
+            btn_all_net = wx.Button(self.map_dial,ID_MAP_GET_ALL_IP,"Toda Rede",(55,105),(60,30))
+            btn_ok_map = wx.Button(self.map_dial,wx.ID_OK,"OK",(35,150),(60,30))
+            btn_cancel_map = wx.Button(self.map_dial,wx.ID_CANCEL,"Cancelar",(105,150),(60,30))
 
             self.map_dial.Bind(wx.EVT_BUTTON,self.get_all_net,id=ID_MAP_GET_ALL_IP)
             self.map_dial.Bind(wx.EVT_BUTTON,self.scan_network,btn_ok_map)
 
-        else :
-            pass
+            self.map_dial.ShowModal()
 
-        self.map_dial.ShowModal()
+        else :
+            self.dial_error = wx.MessageDialog(None,"Não foi encontrado nem um tipo \nde placa de rede ativa!",'Erro',wx.OK|wx.ICON_ERROR)
+            self.dial_error.ShowModal()
+
+
 
     def get_names_interface_network(self):
         interfaces_names = list()
