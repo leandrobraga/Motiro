@@ -217,7 +217,6 @@ class MapNetwork(wx.Frame):
         my_printer = printer.Printer(self)
         my_printer.PageSetup()
 
-
     def get_ip_net(self,select_card):
         ip_mask = self.ip_mask_of_card_net(select_card)
         ip_interface = ip_mask[0]
@@ -233,6 +232,4 @@ class MapNetwork(wx.Frame):
         return ip_net
 
 
-app = wx.App()
-MapNetwork()
-app.MainLoop()
+
